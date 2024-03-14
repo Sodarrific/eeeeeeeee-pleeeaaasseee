@@ -72,7 +72,7 @@ function draw() {
     }
     for (const enemy of enemies_green) {
         if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
-            green_collected += 1
+            green_collected++;
             collisionDetected = true;
             teleportPlayer();
             teleportYellowCollectible();
