@@ -48,12 +48,23 @@ function setup() {
         align_to_grid(floor(random() * (screen_width - block_size))),
         align_to_grid(floor(random() * (screen_height - block_size)))
     );
-    ctx.drawImage(https://picsum.photos/screen_width/screen_height?grayscale, 0, 0, screen_width, screen_height);
+    
 }
 
 function draw() {
-    background(255);
-    
+    var canvas = document.getElementById("canvas"),
+    ctx = canvas.getContext("2d");
+
+    canvas.width = 800;
+    canvas.height = 800;
+
+
+    var background = new Image();
+    background.src = "https://picsum.photos/800/800";
+
+    background.onload = function(){
+        ctx.drawImage(background,0,0);   
+    }
     
     // Draw player
     fill(0, 0, 255);
