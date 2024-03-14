@@ -52,7 +52,7 @@ function setup() {
 }
 
 function draw() {
-    background(https://picsum.photos/800/800);
+    background(255);
     
     // Draw player
     fill(0, 0, 255);
