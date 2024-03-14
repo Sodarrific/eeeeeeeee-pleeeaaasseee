@@ -52,19 +52,7 @@ function setup() {
 }
 
 function draw() {
-    var canvas = document.getElementById("canvas"),
-    ctx = canvas.getContext("2d");
-
-    canvas.width = 800;
-    canvas.height = 800;
-
-
-    var background = new Image();
-    background.src = "https://picsum.photos/800/800";
-
-    background.onload = function(){
-        ctx.drawImage(background,0,0);   
-    }
+    background(https://picsum.photos/800/800);
     
     // Draw player
     fill(0, 0, 255);
