@@ -48,10 +48,12 @@ function setup() {
         align_to_grid(floor(random() * (screen_width - block_size))),
         align_to_grid(floor(random() * (screen_height - block_size)))
     );
+    ctx.drawImage(https://picsum.photos/screen_width/screen_height?grayscale, 0, 0, screen_width, screen_height);
 }
 
 function draw() {
     background(255);
+    
     
     // Draw player
     fill(0, 0, 255);
