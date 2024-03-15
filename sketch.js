@@ -348,4 +348,5 @@ function keyPressed() {
         spawn_count_green++;
     }
     redraw();
+    print("redrawing");
 }
