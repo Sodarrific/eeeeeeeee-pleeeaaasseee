@@ -210,22 +210,22 @@ function keyPressed() {
     key_presses++;
     turns_moved++;
 
+    // Store the current player position to revert if necessary
+    let prevPlayerPos = player_pos.copy();
+
+    // Move the player based on the arrow key pressed
     switch (keyCode) {
         case UP_ARROW:
             player_pos.y -= block_size;
-            print("Moving up!");
             break;
         case DOWN_ARROW:
             player_pos.y += block_size;
-            print("Moving down!");
             break;
         case LEFT_ARROW:
             player_pos.x -= block_size;
-            print("Moving left!");
             break;
         case RIGHT_ARROW:
             player_pos.x += block_size;
-            print("Moving right!");
             break;
     }
 
@@ -347,4 +347,5 @@ function keyPressed() {
         enemies_green.push(spawn_pos.copy());
         spawn_count_green++;
     }
+    redraw();
 }
