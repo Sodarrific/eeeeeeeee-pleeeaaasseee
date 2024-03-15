@@ -124,6 +124,14 @@ function draw() {
             break;
         }
     }
+    for (const enemy of enemies_orange) {
+        if (player_pos.x === enemy.pos.x && player_pos.y === enemy.pos.y) {
+            collisionDetected = true;
+            teleportAndReset();
+            soundEffect.play(); // Play sound effect on collision
+            break;
+        }
+    }
 
     if (collisionDetected) {
         // Clear all enemies except blue and yellow squares
