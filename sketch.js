@@ -52,11 +52,11 @@ function toggleMute() {
         isMuted = false;
         document.getElementById("muteButton").innerText = "Mute Sound";
     } else {
-        soundEffect.setVolume(0); // Mute
-        soundEffect2.setVolume(0); // Mute
+        // Load sound files and start audio context after user interaction
+        soundEffect = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/badnoise.mp3', soundLoaded, soundError); 
+        soundEffect2 = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/goodnoise.mp3', soundLoaded, soundError); 
         isMuted = true;
         document.getElementById("muteButton").innerText = "Unmute Sound";
-        // Start audio context after user interaction
         getAudioContext().resume();
     }
 }
