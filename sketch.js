@@ -380,8 +380,3 @@ function keyPressed() {
         enemies_green.push(spawn_pos.copy());
         spawn_count_green++;
     }
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> c7916a060cdef738650238af7e76c74fb5087cef
