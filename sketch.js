@@ -180,6 +180,8 @@ function draw() {
     for (const enemy_pos of enemies_green) {
         rect(enemy_pos.x, enemy_pos.y, block_size, block_size);
     }
+
+    // Draw enemies (teal)
     fill(0, 200, 255);
     for (const enemy_pos of enemies_teal) {
         rect(enemy_pos.x, enemy_pos.y, block_size, block_size);
@@ -245,7 +247,7 @@ function teleportYellowCollectible() {
         overlaps_with_others(newCollectiblePos, enemies_purple) ||
         overlaps_with_others(newCollectiblePos, enemies_orange) ||
         overlaps_with_others(newCollectiblePos, enemies_green) ||
-        overlaps_with_others(newPlayerPos, enemies_teal) ||
+        overlaps_with_others(newCollectiblePos, enemies_teal) ||
         newCollectiblePos.equals(player_pos)
     );
     collectible_pos = newCollectiblePos;
