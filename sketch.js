@@ -18,6 +18,8 @@ let yellow_collected = 0;
 let green_collected = 0;
 
 let soundEffect;
+let soundEffect2;
+let soundEffect3;
 let isMuted = false;
 let imageLoaded = false;
 let backgroundImage;
@@ -26,6 +28,8 @@ let imageURL = 'https://picsum.photos/800/800?grayscale';
 
 function preload() {
     soundEffect = loadSound('badnoise.mp3'); // Replace 'badnoise.mp3' with the path to your sound effect file
+    soundEffect2 = loadSound('goodnoise.mp3');
+    soundEffect3 = loadSound('blingnoise.mp3');
     loadImage(imageURL, function(img) {
         backgroundImage = img;
         imageLoaded = true;
@@ -36,10 +40,14 @@ function preload() {
 function toggleMute() {
     if (isMuted) {
         soundEffect.setVolume(1); // Unmute
+        soundEffect2.setVolume(1);
+        soundEffect3.setVolume(1);
         isMuted = false;
         document.getElementById("muteButton").innerText = "Mute Sound";
     } else {
         soundEffect.setVolume(0); // Mute
+        soundEffect2.setVolume(0);
+        soundEffect3.setVolume(0);
         isMuted = true;
         document.getElementById("muteButton").innerText = "Unmute Sound";
     }
@@ -112,6 +120,7 @@ function draw() {
             collisionDetected = true;
             teleportPlayer();
             teleportYellowCollectible();
+            soundEffect2.play();
             break;
         }
     }
@@ -157,6 +166,7 @@ function draw() {
         teleportYellowCollectible();
         // Increment yellow squares collected
         yellow_collected++;
+        soundEffect3.play();
     }
 
     // Draw counters
