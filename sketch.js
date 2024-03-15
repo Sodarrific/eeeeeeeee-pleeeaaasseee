@@ -31,18 +31,10 @@ function preload() {
         print("Background image loaded successfully!"); // Debug message
         loop(); // Start the draw loop once background image is loaded
     });
+    // Load sound files
+    soundEffect = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/badnoise.mp3', soundLoaded, soundError); 
+    soundEffect2 = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/goodnoise.mp3', soundLoaded, soundError); 
 }
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Attach event listener to the mute/unmute button
-    document.getElementById("muteButton").addEventListener("click", function() {
-        // Load sound files only when the button is clicked
-        soundEffect = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/badnoise.mp3', soundLoaded, soundError); 
-        soundEffect2 = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/goodnoise.mp3', soundLoaded, soundError); 
-        // Start audio context after user interaction
-        getAudioContext().resume();
-    });
-});
 
 function soundLoaded() {
     console.log("Sound loaded successfully!");
@@ -64,6 +56,8 @@ function toggleMute() {
         soundEffect2.setVolume(0); // Mute
         isMuted = true;
         document.getElementById("muteButton").innerText = "Unmute Sound";
+        // Start audio context after user interaction
+        getAudioContext().resume();
     }
 }
 
@@ -99,7 +93,6 @@ function setup() {
         align_to_grid(floor(random() * (screen_width - block_size))),
         align_to_grid(floor(random() * (screen_height - block_size)))
     );
-    
 }
 
 // Define a variable to control the opacity of the background image
@@ -123,41 +116,6 @@ function draw() {
     fill(255, 255, 0);
     rect(collectible_pos.x, collectible_pos.y, block_size, block_size);
 
-    // Check collisions with enemies and call teleportAndReset if collision occurs
-    let collisionDetected = false;
-    for (const enemy of enemies_red.concat(enemies_purple, enemies_orange)) {
-        if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
-            collisionDetected = true;
-            teleportAndReset();
-            soundEffect.play(); // Play sound effect on collision
-            break;
-        }
-    }
-    for (const enemy of enemies_green) {
-        if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
-            green_collected++;
-            collisionDetected = true;
-            teleportPlayer();
-            teleportYellowCollectible();
-            soundEffect2.play();
-            break;
-        }
-    }
-
-    if (collisionDetected) {
-        // Reduce the opacity of the background image gradually
-        backgroundImageOpacity -= 5; // Decrease opacity slowly
-        if (backgroundImageOpacity < 0) {
-            backgroundImageOpacity = 0; // Ensure opacity doesn't go below 0
-        }
-        // Clear all enemies except blue and yellow squares
-        enemies_red = [];
-        enemies_purple = [];
-        enemies_orange = [];
-        enemies_green = [];
-        // Call teleportAndReset to reset counters
-    }
-
     // Draw enemies (red)
     fill(255, 0, 0);
     for (const enemy_pos of enemies_red) {
@@ -180,16 +138,6 @@ function draw() {
     fill(0, 255, 0);
     for (const enemy_pos of enemies_green) {
         rect(enemy_pos.x, enemy_pos.y, block_size, block_size);
-    }
-
-    // Check collision with yellow collectible
-    if (player_pos.x === collectible_pos.x && player_pos.y === collectible_pos.y) {
-        // Teleport player to a random position not overlapping with other squares
-        teleportPlayer();
-        // Teleport yellow collectible to a random position not overlapping with other squares
-        teleportYellowCollectible();
-        // Increment yellow squares collected
-        yellow_collected++;
     }
 
     // Draw counters
