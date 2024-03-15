@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Button</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+</head>
+<body>
+    <button onclick="loadSounds()">Load Sounds</button>
+
+    <script>
+        let soundEffect1;
+        let soundEffect2;
+
+        function loadSounds() {
+            soundEffect1 = loadSound('https://drive.google.com/uc?export=download&id=1nanemRLcZn15rKBnoqPRDdukSZ0P_4dX');
+            soundEffect2 = loadSound('https://drive.google.com/uc?export=download&id=1bXY_5V9KkEoM2EXxrno0osIByWzBckTv');
+        }
+
+        function setup() {
+            // Setup your canvas or other elements here
+        }
+
+        function draw() {
+            // Draw your content here
+        }
+    </script>
+</body>
+</html>

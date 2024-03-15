@@ -17,6 +17,54 @@ let turns_moved = 0;
 let yellow_collected = 0;
 let green_collected = 0;
 
+let soundEffect;
+let soundEffect2;
+let isMuted = false;
+let imageLoaded = false;
+let backgroundImage;
+let imageURL = 'https://picsum.photos/800/800?grayscale';
+
+function preload() {
+    backgroundImage = loadImage(imageURL, function(img) {
+        backgroundImage = img;
+        imageLoaded = true;
+        print("Background image loaded successfully!"); // Debug message
+        loop(); // Start the draw loop once background image is loaded
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Attach event listener to the mute/unmute button
+    document.getElementById("muteButton").addEventListener("click", function() {
+        // Load sound files only when the button is clicked
+        soundEffect = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/badnoise.mp3', soundLoaded, soundError); 
+        soundEffect2 = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/goodnoise.mp3', soundLoaded, soundError); 
+    });
+});
+
+function soundLoaded() {
+    console.log("Sound loaded successfully!");
+}
+
+function soundError(e) {
+    console.error("Error loading sound:", e);
+}
+
+// Function to toggle mute/unmute
+function toggleMute() {
+    if (isMuted) {
+        soundEffect.setVolume(1); // Unmute
+        soundEffect2.setVolume(1); // Unmute
+        isMuted = false;
+        document.getElementById("muteButton").innerText = "Mute Sound";
+    } else {
+        soundEffect.setVolume(0); // Mute
+        soundEffect2.setVolume(0); // Mute
+        isMuted = true;
+        document.getElementById("muteButton").innerText = "Unmute Sound";
+    }
+}
+
 // Function to align position to grid
 function align_to_grid(pos) {
     return Math.floor(pos / block_size) * block_size;
@@ -40,6 +88,7 @@ function overlaps_with_others(pos, others) {
 
 function setup() {
     createCanvas(screen_width, screen_height);
+    noLoop();
     player_pos = createVector(
         align_to_grid(floor(screen_width / 2)),
         align_to_grid(floor(screen_height / 2))
@@ -50,9 +99,19 @@ function setup() {
     );
 }
 
+// Define a variable to control the opacity of the background image
+let backgroundImageOpacity = 255; // Fully opaque initially
+
 function draw() {
-    background(255);
-    
+    // Draw background image
+    if (imageLoaded) {
+        tint(255, backgroundImageOpacity); // Apply opacity to the image
+        image(backgroundImage, 0, 0, width, height);
+    } else {
+        // If image is not loaded, draw a gray background
+        background(200);
+    }
+
     // Draw player
     fill(0, 0, 255);
     rect(player_pos.x, player_pos.y, block_size, block_size);
@@ -67,19 +126,27 @@ function draw() {
         if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
             collisionDetected = true;
             teleportAndReset();
+            soundEffect.play(); // Play sound effect on collision
             break;
         }
     }
     for (const enemy of enemies_green) {
         if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
+            green_collected++;
             collisionDetected = true;
             teleportPlayer();
             teleportYellowCollectible();
+            soundEffect2.play();
             break;
         }
     }
 
     if (collisionDetected) {
+        // Reduce the opacity of the background image gradually
+        backgroundImageOpacity -= 5; // Decrease opacity slowly
+        if (backgroundImageOpacity < 0) {
+            backgroundImageOpacity = 0; // Ensure opacity doesn't go below 0
+        }
         // Clear all enemies except blue and yellow squares
         enemies_red = [];
         enemies_purple = [];
@@ -313,42 +380,3 @@ function keyPressed() {
         spawn_count_green++;
     }
 }
-// Top ad
-(adsbygoogle = window.adsbygoogle || []).push({
-    google_ad_client: "ca-pub-XXXXXXXXXXXXXX",
-    enable_page_level_ads: true,
-    ad_slot: "YOUR_AD_UNIT_ID",
-    ad_format: "auto",
-    full_width_responsive: true,
-    container: "top-ad"
-});
-
-// Side ads (left)
-(adsbygoogle = window.adsbygoogle || []).push({
-    google_ad_client: "ca-pub-XXXXXXXXXXXXXX",
-    enable_page_level_ads: true,
-    ad_slot: "YOUR_AD_UNIT_ID",
-    ad_format: "auto",
-    full_width_responsive: true,
-    container: "side-ad-left"
-});
-
-// Side ads (right)
-(adsbygoogle = window.adsbygoogle || []).push({
-    google_ad_client: "ca-pub-XXXXXXXXXXXXXX",
-    enable_page_level_ads: true,
-    ad_slot: "YOUR_AD_UNIT_ID",
-    ad_format: "auto",
-    full_width_responsive: true,
-    container: "side-ad-right"
-});
-
-// Bottom ad
-(adsbygoogle = window.adsbygoogle || []).push({
-    google_ad_client: "ca-pub-XXXXXXXXXXXXXX",
-    enable_page_level_ads: true,
-    ad_slot: "YOUR_AD_UNIT_ID",
-    ad_format: "auto",
-    full_width_responsive: true,
-    container: "bottom-ad"
-});

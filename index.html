@@ -6,87 +6,14 @@
     <title>Some stupid game</title>
     <!-- Link to p5.js library -->
     <script src="lib/p5.js"></script>
+    <!-- Link to p5.sound.js library -->
+    <script src="lib/p5.sound.js"></script>
     <!-- Link to your sketch file -->
     <script src="sketch.js" defer></script>
-    <!-- Include Google AdSense Script -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <style>
-        #sketch-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        .ad {
-            position: absolute;
-            text-align: center;
-        }
-        .top-ad {
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .bottom-ad {
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .side-ad-left {
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-        }
-        .side-ad-right {
-            top: 50%;
-            right: 0;
-            transform: translateY(-50%);
-        }
-    </style>
 </head>
 <body>
-    <!-- Sketch container -->
     <div id="sketch-container"></div>
-    <!-- Ads containers -->
-    <div class="ad top-ad"></div>
-    <div class="ad bottom-ad"></div>
-    <div class="ad side-ad-left"></div>
-    <div class="ad side-ad-right"></div>
-
-    <script>
-        // Function to set ad sizes and positions dynamically
-        function setAdSizesAndPositions() {
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
-
-            const adWidth = Math.min(320, screenWidth * 0.2); // Limit max width to 320px or 20% of screen width
-            const adHeight = 50; // Fixed height
-
-            // Set ad sizes and positions
-            const ads = document.querySelectorAll('.ad');
-            ads.forEach(ad => {
-                ad.style.width = adWidth + 'px';
-                ad.style.height = adHeight + 'px';
-            });
-
-            const topAd = document.querySelector('.top-ad');
-            topAd.style.top = '0';
-            topAd.style.left = 'calc(50% - ' + adWidth / 2 + 'px)';
-
-            const bottomAd = document.querySelector('.bottom-ad');
-            bottomAd.style.bottom = '0';
-            bottomAd.style.left = 'calc(50% - ' + adWidth / 2 + 'px)';
-
-            const sideAdLeft = document.querySelector('.side-ad-left');
-            sideAdLeft.style.top = 'calc(50% - ' + adHeight / 2 + 'px)';
-            sideAdLeft.style.left = '0';
-
-            const sideAdRight = document.querySelector('.side-ad-right');
-            sideAdRight.style.top = 'calc(50% - ' + adHeight / 2 + 'px)';
-            sideAdRight.style.right = '0';
-        }
-
-        // Call the function initially and on window resize
-        window.addEventListener('resize', setAdSizesAndPositions);
-        setAdSizesAndPositions();
-    </script>
+    <!-- Mute/Unmute button -->
+    <button id="muteButton" onclick="toggleMute()">Mute/Unmute Sound</button>
 </body>
 </html>
