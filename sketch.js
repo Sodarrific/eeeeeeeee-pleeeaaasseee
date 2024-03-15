@@ -18,46 +18,30 @@ let yellow_collected = 0;
 let green_collected = 0;
 
 let soundEffect;
-let soundEffect2;
 let isMuted = false;
 let imageLoaded = false;
 let backgroundImage;
+let backgroundImageOpacity = 255; // Fully opaque initially
 let imageURL = 'https://picsum.photos/800/800?grayscale';
 
 function preload() {
-    backgroundImage = loadImage(imageURL, function(img) {
+    soundEffect = loadSound('badnoise.mp3'); // Replace 'badnoise.mp3' with the path to your sound effect file
+    loadImage(imageURL, function(img) {
         backgroundImage = img;
         imageLoaded = true;
-        print("Background image loaded successfully!"); // Debug message
-        loop(); // Start the draw loop once background image is loaded
     });
-    // Load sound files
-    soundEffect = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/badnoise.mp3', soundLoaded, soundError); 
-    soundEffect2 = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/goodnoise.mp3', soundLoaded, soundError); 
-}
-
-function soundLoaded() {
-    console.log("Sound loaded successfully!");
-}
-
-function soundError(e) {
-    console.error("Error loading sound:", e);
 }
 
 // Function to toggle mute/unmute
 function toggleMute() {
     if (isMuted) {
         soundEffect.setVolume(1); // Unmute
-        soundEffect2.setVolume(1); // Unmute
         isMuted = false;
         document.getElementById("muteButton").innerText = "Mute Sound";
     } else {
-        // Load sound files and start audio context after user interaction
-        soundEffect = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/badnoise.mp3', soundLoaded, soundError); 
-        soundEffect2 = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/goodnoise.mp3', soundLoaded, soundError); 
+        soundEffect.setVolume(0); // Mute
         isMuted = true;
         document.getElementById("muteButton").innerText = "Unmute Sound";
-        getAudioContext().resume();
     }
 }
 
@@ -84,7 +68,6 @@ function overlaps_with_others(pos, others) {
 
 function setup() {
     createCanvas(screen_width, screen_height);
-    noLoop();
     player_pos = createVector(
         align_to_grid(floor(screen_width / 2)),
         align_to_grid(floor(screen_height / 2))
@@ -95,68 +78,52 @@ function setup() {
     );
 }
 
-// Define a variable to control the opacity of the background image
-let backgroundImageOpacity = 255; // Fully opaque initially
-
 function draw() {
-    // Draw white background
     background(255);
 
-    // Check if the player collides with any red, purple, or orange squares
-    let playerCollided = false;
-    for (const enemy_pos of enemies_red.concat(enemies_purple, enemies_orange)) {
-        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
-            playerCollided = true;
-            break;
-        }
-    }
-
-    // Draw background image only if the player has collided with any of the specified squares
-    if (playerCollided && imageLoaded) {
-        // Decrease the opacity gradually
-        if (backgroundImageOpacity > 0) {
-            backgroundImageOpacity -= 2; // Adjust the fading speed here
-        }
+    // Draw background image with fading effect
+    if (imageLoaded) {
         tint(255, backgroundImageOpacity); // Apply opacity to the image
-        image(backgroundImage, 0, 0, 800, 800);
+        image(backgroundImage, 0, 0, width, height);
+        backgroundImageOpacity -= 2; // Decrease the opacity gradually
     }
 
     // Draw player
     fill(0, 0, 255);
     rect(player_pos.x, player_pos.y, block_size, block_size);
 
-    // Check for collision with yellow collectible
-    if (player_pos.x === collectible_pos.x && player_pos.y === collectible_pos.y) {
-        yellow_collected++;
-        teleportYellowCollectible();
-    }
-
-    // Check for collision with enemies (red, purple, orange)
-    for (const enemy_pos of enemies_red.concat(enemies_purple, enemies_orange)) {
-        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
-            // Handle collision with enemy
-            teleportAndReset();
-            teleportYellowCollectible();
-            return; // Exit the function early
-        }
-    }
-        // Check for collision with enemies (green)
-    for (const enemy_pos of enemies_green) {
-        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
-            // Handle collision with enemy
-            teleportPlayer();
-            teleportYellowCollectible();
-            enemies_red = [];
-            enemies_purple = [];
-            enemies_orange = [];
-            enemies_green = [];
-            return; // Exit the function early
-        }
-    }
-
     // Draw collectible
     fill(255, 255, 0);
     rect(collectible_pos.x, collectible_pos.y, block_size, block_size);
+
+    // Check collisions with enemies and call teleportAndReset if collision occurs
+    let collisionDetected = false;
+    for (const enemy of enemies_red.concat(enemies_purple, enemies_orange)) {
+        if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
+            collisionDetected = true;
+            teleportAndReset();
+            soundEffect.play(); // Play sound effect on collision
+            break;
+        }
+    }
+    for (const enemy of enemies_green) {
+        if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
+            green_collected++;
+            collisionDetected = true;
+            teleportPlayer();
+            teleportYellowCollectible();
+            break;
+        }
+    }
+
+    if (collisionDetected) {
+        // Clear all enemies except blue and yellow squares
+        enemies_red = [];
+        enemies_purple = [];
+        enemies_orange = [];
+        enemies_green = [];
+        // Call teleportAndReset to reset counters
+    }
 
     // Draw enemies (red)
     fill(255, 0, 0);
@@ -182,6 +149,16 @@ function draw() {
         rect(enemy_pos.x, enemy_pos.y, block_size, block_size);
     }
 
+    // Check collision with yellow collectible
+    if (player_pos.x === collectible_pos.x && player_pos.y === collectible_pos.y) {
+        // Teleport player to a random position not overlapping with other squares
+        teleportPlayer();
+        // Teleport yellow collectible to a random position not overlapping with other squares
+        teleportYellowCollectible();
+        // Increment yellow squares collected
+        yellow_collected++;
+    }
+
     // Draw counters
     fill(0);
     textSize(20);
@@ -189,19 +166,12 @@ function draw() {
     text("Yellow squares collected: " + yellow_collected, 10, 40);
     text("Green squares collected: " + green_collected, 10, 60);
 }
+
 function teleportAndReset() {
-    // Clear all enemy arrays
-    enemies_red = [];
-    enemies_purple = [];
-    enemies_orange = [];
-    enemies_green = [];
-    
     // Teleport player to a random position not overlapping with other squares
     teleportPlayer();
-    
     // Teleport yellow collectible to a random position not overlapping with other squares
     teleportYellowCollectible();
-    
     // Reset scores to 0
     turns_moved = 0;
     yellow_collected = 0;
@@ -246,10 +216,6 @@ function keyPressed() {
     key_presses++;
     turns_moved++;
 
-    // Store the current player position to revert if necessary
-    let prevPlayerPos = player_pos.copy();
-
-    // Move the player based on the arrow key pressed
     switch (keyCode) {
         case UP_ARROW:
             player_pos.y -= block_size;
@@ -383,6 +349,12 @@ function keyPressed() {
         enemies_green.push(spawn_pos.copy());
         spawn_count_green++;
     }
-    redraw();
-    print("redrawing");
+}
+
+// HTML button to toggle mute/unmute
+function createMuteButton() {
+    let muteButton = createButton('Mute Sound');
+    muteButton.id('muteButton');
+    muteButton.mousePressed(toggleMute);
+    muteButton.position(10, 80);
 }
