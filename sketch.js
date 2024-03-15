@@ -39,6 +39,8 @@ document.addEventListener("DOMContentLoaded", function() {
         // Load sound files only when the button is clicked
         soundEffect = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/badnoise.mp3', soundLoaded, soundError); 
         soundEffect2 = loadSound('https://cdn.jsdelivr.net/gh/Sodarrific/eeeeeeeee-pleeeaaasseee/goodnoise.mp3', soundLoaded, soundError); 
+        // Start audio context after user interaction
+        getAudioContext().resume();
     });
 });
 
