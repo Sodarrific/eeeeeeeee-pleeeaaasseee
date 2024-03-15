@@ -97,6 +97,7 @@ function setup() {
         align_to_grid(floor(random() * (screen_width - block_size))),
         align_to_grid(floor(random() * (screen_height - block_size)))
     );
+    
 }
 
 // Define a variable to control the opacity of the background image
@@ -379,4 +380,8 @@ function keyPressed() {
         enemies_green.push(spawn_pos.copy());
         spawn_count_green++;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> c7916a060cdef738650238af7e76c74fb5087cef
