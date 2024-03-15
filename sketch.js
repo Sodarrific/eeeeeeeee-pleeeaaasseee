@@ -111,6 +111,57 @@ function draw() {
         }
     }
 
+    // Check if the player collides with a red square
+    for (const enemy_pos of enemies_red) {
+        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
+            // Actions to take when colliding with red square
+            // For example, teleport player and reset
+            teleportAndReset();
+            // Play sound effect
+            if (!isMuted) {
+                soundEffect.play();
+            }
+            // Exit the loop since we've already handled the collision
+            return;
+        }
+    }
+
+    // Check if the player collides with a purple square
+    for (const enemy_pos of enemies_purple) {
+        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
+            // Actions to take when colliding with purple square
+            // For example, increase score, teleport collectible, etc.
+            // Increase purple squares collected
+            purple_collected++;
+            // Teleport the collectible
+            teleportYellowCollectible();
+            // Play sound effect
+            if (!isMuted) {
+                soundEffect2.play();
+            }
+            // Exit the loop since we've already handled the collision
+            return;
+        }
+    }
+
+    // Check if the player collides with an orange square
+    for (const enemy_data of enemies_orange) {
+        if (player_pos.x === enemy_data.pos.x && player_pos.y === enemy_data.pos.y) {
+            // Actions to take when colliding with orange square
+            // For example, decrease score, teleport player, etc.
+            // Decrease orange squares remaining
+            orange_remaining--;
+            // Teleport the player
+            teleportPlayer();
+            // Play sound effect
+            if (!isMuted) {
+                soundEffect.play();
+            }
+            // Exit the loop since we've already handled the collision
+            return;
+        }
+    }
+
     // Draw background image only if the player has collided with any of the specified squares
     if (playerCollided && imageLoaded) {
         // Decrease the opacity gradually
@@ -160,7 +211,6 @@ function draw() {
     text("Yellow squares collected: " + yellow_collected, 10, 40);
     text("Green squares collected: " + green_collected, 10, 60);
 }
-
 function teleportAndReset() {
     // Teleport player to a random position not overlapping with other squares
     teleportPlayer();
@@ -229,55 +279,35 @@ function keyPressed() {
             break;
     }
 
-    // Check for collisions with enemies
-    let playerCollided = checkPlayerCollision();
-    if (playerCollided) {
-        // Player collided with an enemy, handle accordingly (e.g., lose game, reset position, etc.)
-        // For now, let's revert the player's position to the previous valid position
-        player_pos = prevPlayerPos;
-    }
-
     // Move red/purple block only on even key presses
     if (key_presses % 4 === 0) {
-        moveEnemies(enemies_red);
+        for (const enemy of enemies_red) {
+            if (player_pos.x < enemy.x) {
+                enemy.x -= block_size;
+            } else if (player_pos.x > enemy.x) {
+                enemy.x += block_size;
+            } else if (player_pos.y < enemy.y) {
+                enemy.y -= block_size;
+            } else if (player_pos.y > enemy.y) {
+                enemy.y += block_size;
+            }
+        }
     }
 
     if (key_presses % 2 === 0) {
-        moveEnemies(enemies_purple);
-    }
-
-    // Move orange enemies
-    moveOrangeEnemies();
-
-    // Spawn new enemies
-    spawnEnemies();
-
-    redraw();
-}
-
-// Function to check for collisions between player and enemies
-function checkPlayerCollision() {
-    for (const enemy of enemies_red.concat(enemies_purple, enemies_orange, enemies_green)) {
-        if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
-            return true; // Collision detected
+        for (const enemy of enemies_purple) {
+            if (player_pos.x < enemy.x) {
+                enemy.x -= block_size;
+            } else if (player_pos.x > enemy.x) {
+                enemy.x += block_size;
+            } else if (player_pos.y < enemy.y) {
+                enemy.y -= block_size;
+            } else if (player_pos.y > enemy.y) {
+                enemy.y += block_size;
+            }
         }
     }
-    return false; // No collision detected
-}
 
-// Function to move enemies
-function moveEnemies(enemies) {
-    for (const enemy of enemies) {
-        // Move enemies randomly
-        let dx = round(random(-1, 1)) * block_size;
-        let dy = round(random(-1, 1)) * block_size;
-        enemy.x += dx;
-        enemy.y += dy;
-    }
-}
-
-// Function to move orange enemies towards the player
-function moveOrangeEnemies() {
     for (const enemy of enemies_orange) {
         if (enemy.turns_still >= 20) {
             // Move the orange enemy towards the player
@@ -295,42 +325,78 @@ function moveOrangeEnemies() {
             enemy.turns_still++;
         }
     }
-}
 
-// Function to spawn new enemies
-function spawnEnemies() {
+    // Spawn new enemies
     if (key_presses % 20 === 0) {
-        // Spawn red enemies
-        spawnEnemy(enemies_red);
+        let spawn_pos = createVector();
+        do {
+            spawn_pos.set(
+                align_to_grid(floor(random() * (screen_width - block_size))),
+                align_to_grid(floor(random() * (screen_height - block_size)))
+            );
+        } while (
+            spawn_pos.equals(player_pos) ||
+            within_radius(spawn_pos, player_pos, 3) ||
+            overlaps_with_others(spawn_pos, enemies_red)
+        );
+        enemies_red.push(spawn_pos.copy());
+        spawn_count_red++;
     }
 
     if (key_presses % 40 === 0) {
-        // Spawn purple enemies
-        spawnEnemy(enemies_purple);
-    }
-
-    if (key_presses % 100 === 0) {
-        // Spawn orange enemies
-        spawnEnemy(enemies_orange);
-    }
-
-    if (key_presses % 100 === 0) {
-        // Spawn green enemies
-        spawnEnemy(enemies_green);
-    }
-}
-
-// Function to spawn a single enemy
-function spawnEnemy(enemies) {
-    let spawn_pos;
-    do {
-        spawn_pos = createVector(
-            align_to_grid(floor(random() * (screen_width - block_size))),
-            align_to_grid(floor(random() * (screen_height - block_size)))
+        let spawn_pos = createVector();
+        do {
+            spawn_pos.set(
+                align_to_grid(floor(random() * (screen_width - block_size))),
+                align_to_grid(floor(random() * (screen_height - block_size)))
+            );
+        } while (
+            spawn_pos.equals(player_pos) ||
+            within_radius(spawn_pos, player_pos, 3) ||
+            overlaps_with_others(spawn_pos, enemies_red) ||
+            overlaps_with_others(spawn_pos, enemies_purple)
         );
-    } while (
-        overlaps_with_others(spawn_pos, [player_pos].concat(enemies)) ||
-        within_radius(spawn_pos, player_pos, 3)
-    );
-    enemies.push(spawn_pos.copy());
+        enemies_purple.push(spawn_pos.copy());
+        spawn_count_purple++;
+    }
+
+    if (key_presses % 100 === 0) {
+        let spawn_pos = createVector();
+        do {
+            spawn_pos.set(
+                align_to_grid(floor(random() * (screen_width - block_size))),
+                align_to_grid(floor(random() * (screen_height - block_size)))
+            );
+        } while (
+            spawn_pos.equals(player_pos) ||
+            within_radius(spawn_pos, player_pos, 3) ||
+            overlaps_with_others(spawn_pos, enemies_red) ||
+            overlaps_with_others(spawn_pos, enemies_purple) ||
+            overlaps_with_others(spawn_pos, enemies_orange)
+        );
+        enemies_orange.push({ pos: spawn_pos.copy(), turns_still: 0 }); // Initialize turns_still to 0
+        spawn_count_orange++;
+    }
+
+    // Spawn new green square every hundredth key press
+    if (key_presses % 100 === 0) {
+        let spawn_pos = createVector();
+        do {
+            spawn_pos.set(
+                align_to_grid(floor(random() * (screen_width - block_size))),
+                align_to_grid(floor(random() * (screen_height - block_size)))
+            );
+        } while (
+            spawn_pos.equals(player_pos) ||
+            within_radius(spawn_pos, player_pos, 3) ||
+            overlaps_with_others(spawn_pos, enemies_red) ||
+            overlaps_with_others(spawn_pos, enemies_purple) ||
+            overlaps_with_others(spawn_pos, enemies_orange) ||
+            overlaps_with_others(spawn_pos, enemies_green)
+        );
+        enemies_green.push(spawn_pos.copy());
+        spawn_count_green++;
+    }
+    redraw();
+    print("redrawing");
 }
