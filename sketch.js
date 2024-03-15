@@ -229,35 +229,55 @@ function keyPressed() {
             break;
     }
 
+    // Check for collisions with enemies
+    let playerCollided = checkPlayerCollision();
+    if (playerCollided) {
+        // Player collided with an enemy, handle accordingly (e.g., lose game, reset position, etc.)
+        // For now, let's revert the player's position to the previous valid position
+        player_pos = prevPlayerPos;
+    }
+
     // Move red/purple block only on even key presses
     if (key_presses % 4 === 0) {
-        for (const enemy of enemies_red) {
-            if (player_pos.x < enemy.x) {
-                enemy.x -= block_size;
-            } else if (player_pos.x > enemy.x) {
-                enemy.x += block_size;
-            } else if (player_pos.y < enemy.y) {
-                enemy.y -= block_size;
-            } else if (player_pos.y > enemy.y) {
-                enemy.y += block_size;
-            }
-        }
+        moveEnemies(enemies_red);
     }
 
     if (key_presses % 2 === 0) {
-        for (const enemy of enemies_purple) {
-            if (player_pos.x < enemy.x) {
-                enemy.x -= block_size;
-            } else if (player_pos.x > enemy.x) {
-                enemy.x += block_size;
-            } else if (player_pos.y < enemy.y) {
-                enemy.y -= block_size;
-            } else if (player_pos.y > enemy.y) {
-                enemy.y += block_size;
-            }
-        }
+        moveEnemies(enemies_purple);
     }
 
+    // Move orange enemies
+    moveOrangeEnemies();
+
+    // Spawn new enemies
+    spawnEnemies();
+
+    redraw();
+}
+
+// Function to check for collisions between player and enemies
+function checkPlayerCollision() {
+    for (const enemy of enemies_red.concat(enemies_purple, enemies_orange, enemies_green)) {
+        if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
+            return true; // Collision detected
+        }
+    }
+    return false; // No collision detected
+}
+
+// Function to move enemies
+function moveEnemies(enemies) {
+    for (const enemy of enemies) {
+        // Move enemies randomly
+        let dx = round(random(-1, 1)) * block_size;
+        let dy = round(random(-1, 1)) * block_size;
+        enemy.x += dx;
+        enemy.y += dy;
+    }
+}
+
+// Function to move orange enemies towards the player
+function moveOrangeEnemies() {
     for (const enemy of enemies_orange) {
         if (enemy.turns_still >= 20) {
             // Move the orange enemy towards the player
@@ -275,78 +295,42 @@ function keyPressed() {
             enemy.turns_still++;
         }
     }
+}
 
-    // Spawn new enemies
+// Function to spawn new enemies
+function spawnEnemies() {
     if (key_presses % 20 === 0) {
-        let spawn_pos = createVector();
-        do {
-            spawn_pos.set(
-                align_to_grid(floor(random() * (screen_width - block_size))),
-                align_to_grid(floor(random() * (screen_height - block_size)))
-            );
-        } while (
-            spawn_pos.equals(player_pos) ||
-            within_radius(spawn_pos, player_pos, 3) ||
-            overlaps_with_others(spawn_pos, enemies_red)
-        );
-        enemies_red.push(spawn_pos.copy());
-        spawn_count_red++;
+        // Spawn red enemies
+        spawnEnemy(enemies_red);
     }
 
     if (key_presses % 40 === 0) {
-        let spawn_pos = createVector();
-        do {
-            spawn_pos.set(
-                align_to_grid(floor(random() * (screen_width - block_size))),
-                align_to_grid(floor(random() * (screen_height - block_size)))
-            );
-        } while (
-            spawn_pos.equals(player_pos) ||
-            within_radius(spawn_pos, player_pos, 3) ||
-            overlaps_with_others(spawn_pos, enemies_red) ||
-            overlaps_with_others(spawn_pos, enemies_purple)
-        );
-        enemies_purple.push(spawn_pos.copy());
-        spawn_count_purple++;
+        // Spawn purple enemies
+        spawnEnemy(enemies_purple);
     }
 
     if (key_presses % 100 === 0) {
-        let spawn_pos = createVector();
-        do {
-            spawn_pos.set(
-                align_to_grid(floor(random() * (screen_width - block_size))),
-                align_to_grid(floor(random() * (screen_height - block_size)))
-            );
-        } while (
-            spawn_pos.equals(player_pos) ||
-            within_radius(spawn_pos, player_pos, 3) ||
-            overlaps_with_others(spawn_pos, enemies_red) ||
-            overlaps_with_others(spawn_pos, enemies_purple) ||
-            overlaps_with_others(spawn_pos, enemies_orange)
-        );
-        enemies_orange.push({ pos: spawn_pos.copy(), turns_still: 0 }); // Initialize turns_still to 0
-        spawn_count_orange++;
+        // Spawn orange enemies
+        spawnEnemy(enemies_orange);
     }
 
-    // Spawn new green square every hundredth key press
     if (key_presses % 100 === 0) {
-        let spawn_pos = createVector();
-        do {
-            spawn_pos.set(
-                align_to_grid(floor(random() * (screen_width - block_size))),
-                align_to_grid(floor(random() * (screen_height - block_size)))
-            );
-        } while (
-            spawn_pos.equals(player_pos) ||
-            within_radius(spawn_pos, player_pos, 3) ||
-            overlaps_with_others(spawn_pos, enemies_red) ||
-            overlaps_with_others(spawn_pos, enemies_purple) ||
-            overlaps_with_others(spawn_pos, enemies_orange) ||
-            overlaps_with_others(spawn_pos, enemies_green)
-        );
-        enemies_green.push(spawn_pos.copy());
-        spawn_count_green++;
+        // Spawn green enemies
+        spawnEnemy(enemies_green);
     }
-    redraw();
-    print("redrawing");
+}
+
+// Function to spawn a single enemy
+function spawnEnemy(enemies) {
+    let spawn_pos;
+    do {
+        spawn_pos = createVector(
+            align_to_grid(floor(random() * (screen_width - block_size))),
+            align_to_grid(floor(random() * (screen_height - block_size)))
+        );
+    } while (
+        overlaps_with_others(spawn_pos, [player_pos].concat(enemies)) ||
+        within_radius(spawn_pos, player_pos, 3)
+    );
+    enemies.push(spawn_pos.copy());
 }
