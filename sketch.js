@@ -99,13 +99,26 @@ function setup() {
 let backgroundImageOpacity = 255; // Fully opaque initially
 
 function draw() {
-    // Draw background image
-    if (imageLoaded) {
+    // Draw white background
+    background(255);
+
+    // Check if the player collides with any red, purple, or orange squares
+    let playerCollided = false;
+    for (const enemy_pos of enemies_red.concat(enemies_purple, enemies_orange)) {
+        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
+            playerCollided = true;
+            break;
+        }
+    }
+
+    // Draw background image only if the player has collided with any of the specified squares
+    if (playerCollided && imageLoaded) {
+        // Decrease the opacity gradually
+        if (backgroundImageOpacity > 0) {
+            backgroundImageOpacity -= 2; // Adjust the fading speed here
+        }
         tint(255, backgroundImageOpacity); // Apply opacity to the image
         image(backgroundImage, 0, 0, width, height);
-    } else {
-        // If image is not loaded, draw a gray background
-        background(200);
     }
 
     // Draw player
