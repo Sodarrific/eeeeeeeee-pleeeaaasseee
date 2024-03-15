@@ -8,6 +8,7 @@ let enemies_red = [];
 let enemies_purple = [];
 let enemies_orange = [];
 let enemies_green = [];
+let enemies_teal = [];
 let key_presses = 0;
 let spawn_count_red = 0;
 let spawn_count_purple = 0;
@@ -109,6 +110,18 @@ function draw() {
     for (const enemy of enemies_red.concat(enemies_purple, enemies_orange)) {
         if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
             collisionDetected = true;
+            backgroundImageOpacity = 255;
+            enemies_teal = [];
+            teleportAndReset();
+            soundEffect.play(); // Play sound effect on collision
+            break;
+        }
+    }
+    for (const enemy of enemies_teal) {
+        if (player_pos.x === enemy.x && player_pos.y === enemy.y) {
+            collisionDetected = true;
+            backgroundImageOpacity = 255;
+            enemies_teal = [];
             teleportAndReset();
             soundEffect.play(); // Play sound effect on collision
             break;
@@ -127,6 +140,8 @@ function draw() {
     for (const enemy of enemies_orange) {
         if (player_pos.x === enemy.pos.x && player_pos.y === enemy.pos.y) {
             collisionDetected = true;
+            backgroundImageOpacity = 255;
+            enemies_teal = [];
             teleportAndReset();
             soundEffect.play(); // Play sound effect on collision
             break;
@@ -163,6 +178,10 @@ function draw() {
     // Draw enemies (green)
     fill(0, 255, 0);
     for (const enemy_pos of enemies_green) {
+        rect(enemy_pos.x, enemy_pos.y, block_size, block_size);
+    }
+    fill(0, 200, 255);
+    for (const enemy_pos of enemies_teal) {
         rect(enemy_pos.x, enemy_pos.y, block_size, block_size);
     }
 
@@ -208,7 +227,8 @@ function teleportPlayer() {
         overlaps_with_others(newPlayerPos, enemies_red) ||
         overlaps_with_others(newPlayerPos, enemies_purple) ||
         overlaps_with_others(newPlayerPos, enemies_orange) ||
-        overlaps_with_others(newPlayerPos, enemies_green)
+        overlaps_with_others(newPlayerPos, enemies_green) ||
+        overlaps_with_others(newPlayerPos, enemies_teal)
     );
     player_pos = newPlayerPos;
 }
@@ -225,6 +245,7 @@ function teleportYellowCollectible() {
         overlaps_with_others(newCollectiblePos, enemies_purple) ||
         overlaps_with_others(newCollectiblePos, enemies_orange) ||
         overlaps_with_others(newCollectiblePos, enemies_green) ||
+        overlaps_with_others(newPlayerPos, enemies_teal) ||
         newCollectiblePos.equals(player_pos)
     );
     collectible_pos = newCollectiblePos;
@@ -266,6 +287,19 @@ function keyPressed() {
 
     if (key_presses % 2 === 0) {
         for (const enemy of enemies_purple) {
+            if (player_pos.x < enemy.x) {
+                enemy.x -= block_size;
+            } else if (player_pos.x > enemy.x) {
+                enemy.x += block_size;
+            } else if (player_pos.y < enemy.y) {
+                enemy.y -= block_size;
+            } else if (player_pos.y > enemy.y) {
+                enemy.y += block_size;
+            }
+        }
+    }
+    if (key_presses % 7 === 0) {
+        for (const enemy of enemies_teal) {
             if (player_pos.x < enemy.x) {
                 enemy.x -= block_size;
             } else if (player_pos.x > enemy.x) {
@@ -366,6 +400,25 @@ function keyPressed() {
         );
         enemies_green.push(spawn_pos.copy());
         spawn_count_green++;
+    }
+    if (key_presses % 250 === 0 || key_presses % 343 === 0) {
+        let spawn_pos = createVector();
+        do {
+            spawn_pos.set(
+                align_to_grid(floor(random() * (screen_width - block_size))),
+                align_to_grid(floor(random() * (screen_height - block_size)))
+            );
+        } while (
+            spawn_pos.equals(player_pos) ||
+            within_radius(spawn_pos, player_pos, 3) ||
+            overlaps_with_others(spawn_pos, enemies_red) ||
+            overlaps_with_others(spawn_pos, enemies_purple) ||
+            overlaps_with_others(spawn_pos, enemies_orange) ||
+            overlaps_with_others(spawn_pos, enemies_green) ||
+            overlaps_with_others(spawn_pos, enemies_teal)
+        );
+        enemies_teal.push(spawn_pos.copy());
+        spawn_count_teal++;
     }
 }
 
