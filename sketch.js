@@ -118,7 +118,7 @@ function draw() {
             backgroundImageOpacity -= 2; // Adjust the fading speed here
         }
         tint(255, backgroundImageOpacity); // Apply opacity to the image
-        image(backgroundImage, 0, 0, width, height);
+        image(backgroundImage, 0, 0, 800, 800);
     }
 
     // Draw player
