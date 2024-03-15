@@ -111,57 +111,6 @@ function draw() {
         }
     }
 
-    // Check if the player collides with a red square
-    for (const enemy_pos of enemies_red) {
-        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
-            // Actions to take when colliding with red square
-            // For example, teleport player and reset
-            teleportAndReset();
-            // Play sound effect
-            if (!isMuted) {
-                soundEffect.play();
-            }
-            // Exit the loop since we've already handled the collision
-            return;
-        }
-    }
-
-    // Check if the player collides with a purple square
-    for (const enemy_pos of enemies_purple) {
-        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
-            // Actions to take when colliding with purple square
-            // For example, increase score, teleport collectible, etc.
-            // Increase purple squares collected
-            purple_collected++;
-            // Teleport the collectible
-            teleportYellowCollectible();
-            // Play sound effect
-            if (!isMuted) {
-                soundEffect2.play();
-            }
-            // Exit the loop since we've already handled the collision
-            return;
-        }
-    }
-
-    // Check if the player collides with an orange square
-    for (const enemy_data of enemies_orange) {
-        if (player_pos.x === enemy_data.pos.x && player_pos.y === enemy_data.pos.y) {
-            // Actions to take when colliding with orange square
-            // For example, decrease score, teleport player, etc.
-            // Decrease orange squares remaining
-            orange_remaining--;
-            // Teleport the player
-            teleportPlayer();
-            // Play sound effect
-            if (!isMuted) {
-                soundEffect.play();
-            }
-            // Exit the loop since we've already handled the collision
-            return;
-        }
-    }
-
     // Draw background image only if the player has collided with any of the specified squares
     if (playerCollided && imageLoaded) {
         // Decrease the opacity gradually
@@ -175,6 +124,35 @@ function draw() {
     // Draw player
     fill(0, 0, 255);
     rect(player_pos.x, player_pos.y, block_size, block_size);
+
+    // Check for collision with yellow collectible
+    if (player_pos.x === collectible_pos.x && player_pos.y === collectible_pos.y) {
+        yellow_collected++;
+        teleportYellowCollectible();
+    }
+
+    // Check for collision with enemies (red, purple, orange)
+    for (const enemy_pos of enemies_red.concat(enemies_purple, enemies_orange)) {
+        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
+            // Handle collision with enemy
+            teleportAndReset();
+            teleportYellowCollectible();
+            return; // Exit the function early
+        }
+    }
+        // Check for collision with enemies (green)
+    for (const enemy_pos of enemies_green) {
+        if (player_pos.x === enemy_pos.x && player_pos.y === enemy_pos.y) {
+            // Handle collision with enemy
+            teleportPlayer();
+            teleportYellowCollectible();
+            enemies_red = [];
+            enemies_purple = [];
+            enemies_orange = [];
+            enemies_green = [];
+            return; // Exit the function early
+        }
+    }
 
     // Draw collectible
     fill(255, 255, 0);
@@ -212,10 +190,18 @@ function draw() {
     text("Green squares collected: " + green_collected, 10, 60);
 }
 function teleportAndReset() {
+    // Clear all enemy arrays
+    enemies_red = [];
+    enemies_purple = [];
+    enemies_orange = [];
+    enemies_green = [];
+    
     // Teleport player to a random position not overlapping with other squares
     teleportPlayer();
+    
     // Teleport yellow collectible to a random position not overlapping with other squares
     teleportYellowCollectible();
+    
     // Reset scores to 0
     turns_moved = 0;
     yellow_collected = 0;
